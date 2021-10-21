@@ -257,6 +257,7 @@ import PublishActions from './PublishActions';
 import SaveButtonOptions from '../publish/SaveButtonOptions';
 import RevisionHistory from '../revision-history/History';
 import HasPreferences from '../data-list/HasPreferences';
+import saveController from '../publish/SaveController'
 
 export default {
 
@@ -436,15 +437,20 @@ export default {
         },
 
         save() {
-            if (! this.canSave) {
-                this.quickSave = false;
-                return;
-            }
+            console.log('beforeTriggerSave')
+            saveController.triggerSave()
+                .then(() => {
+                    console.log('afterTriggerSave')
+                    if (! this.canSave) {
+                        this.quickSave = false;
+                        return;
+                    }
 
-            this.saving = true;
-            this.clearErrors();
+                    this.saving = true;
+                    this.clearErrors();
 
-            this.runBeforeSaveHook();
+                    this.runBeforeSaveHook();
+                });
         },
 
         runBeforeSaveHook() {

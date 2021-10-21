@@ -1,4 +1,10 @@
 <script>
+import saveController from '../publish/SaveController';
+
+const debouncedUpdate = _.debounce(function (func) {
+    func();
+}, 3000);
+
 export default {
 
     props: {
@@ -30,9 +36,23 @@ export default {
             this.$emit('input', value);
         },
 
-        updateDebounced: _.debounce(function (value) {
-            this.update(value);
-        }, 150),
+        updateDebounced(value) {
+            console.log('updateDebounced', value)
+            const listener = saveController.registerListener();
+
+            listener.onSave.then(() => {
+                console.log('updateDebounced onSave', value)
+                debouncedUpdate.cancel();
+                this.update(value);
+                console.log('updateDebounced onSave after update')
+            })
+
+            return debouncedUpdate(() => {
+                console.log('update', value)
+                listener.unregister();
+                this.update(value);
+            });
+        },
 
         updateMeta(value) {
             this.$emit('meta-updated', value);
